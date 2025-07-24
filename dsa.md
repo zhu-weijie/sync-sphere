@@ -335,6 +335,18 @@ def binary_search(arr: List[int], target: int) -> int:
 
 (44:20) Now, let's plug that pattern into a real problem to see it in action. We're given a sorted array of booleans. All the falses come first, followed by a bunch of TRs, and our job is to find the first index where the value is true. This setup is a classic monotonic condition.
 
+```python
+def first_true(arr: List[bool]) -> int:
+    left, right = 0, len(arr) - 1
+    while left <= right:
+        mid = (left + right) // 2
+        if arr[mid]:
+            right = mid - 1
+        else:
+            left = mid + 1
+    return left
+```
+
 (44:39) Once the array turns true, it stays true. It never flips back. So the array might not look traditionally sorted, but it still has that one directional property we need. So how do we find that first true efficiently? Binary search. We start by setting our usual left and right pointers to cover the full array. and we'll keep track of the best candidate we've seen so far, the earliest index that's returned true.
 
 (45:05) Inside the loop, we grab the midpoint and ask, is this index good enough? If the value at that index is true, that means it could be our answer. But we're greedy here. We want the first true. So, we update our boundary and keep searching to the left. If it's false, then this index and everything before it is invalid. So we shift our search to the right.
@@ -342,6 +354,18 @@ def binary_search(arr: List[int], target: int) -> int:
 (45:29) This is the core idea of binary search on a feasibility function. We're not comparing values in the usual way. We're asking yes no questions about whether the index satisfies a condition. That lets us confidently shrink the search space in the right direction. Once the loop ends, we return the best index we found.
 
 (45:53) If the array was all false, that fallback value of negative 1 gets returned. This approach lets us find the boundary, the first true in logarithmic time, no matter how big the array is. Pretty slick, right? Let's tackle a classic interview problem. Find the minimum in a rotated sorted array. We're given a sorted array that's been rotated at some unknown pivot.
+
+```python
+def find_min_in_rotated_sorted_array(arr: List[int]) -> int:
+    left, right = 0, len(arr) - 1
+    while left < right:
+        mid = (left + right) // 2
+        if arr[mid] > arr[right]:
+            left = mid + 1
+        else:
+            right = mid
+    return arr[left]
+```
 
 (46:14) So something like 10 20 30 40 50 might become 30 40 50 10 20. Our goal is to find the index of the smallest number in that array. At first, it might seem like binary search won't help here. The array isn't fully sorted anymore. But if you look closely, there's still structure we can use. Before the rotation point, the numbers are increasing. Then suddenly they drop.
 
@@ -363,6 +387,28 @@ def binary_search(arr: List[int], target: int) -> int:
 
 (49:37) Here's the exact template for running BFS on a tree. Let's break it down. We start with the root node and place it into a que. While the queue isn't empty, we remove the first node, FIFO. We look at all of its children. If any child meets the goal, we return it. Otherwise, we add the children to the queue and keep going. The Q ensures that we always finish one level before moving to the next.
 
+```python
+class TreeNode:
+    def __init__(self, val=0, left=None, right=None):
+        self.val = val
+        self.left = left
+        self.right = right
+
+def bfs_tree_level_order(root: TreeNode) -> List[int]:
+    if not root:
+        return []
+    queue = deque([root])
+    result = []
+    while queue:
+        node = queue.popleft()
+        result.append(node.val)
+        if node.left:
+            queue.append(node.left)
+        if node.right:
+            queue.append(node.right)
+    return result
+```
+
 (50:01) This is what makes BFS so great for things like finding the shortest path in a tree or processing level by level. And because trees are a cyclic by definition, we don't need to worry about visiting the same node twice, which simplifies the logic a lot.
 
 (50:20) Use this pattern when you're traversing a tree from top to bottom or root to leaves or when you care about depth, distance, or level based logic, or if you're looking for the first match or the closest node to the root. As long as you're working with a true tree, this version is clean and efficient. But once cycles are possible, we need something more. Graphs are more general than trees.
@@ -373,11 +419,42 @@ def binary_search(arr: List[int], target: int) -> int:
 
 (51:18) The key move here is when we mark nodes as visited. We do it when we incue them, not when we process them. That way, we avoid adding the same node more than once. Use this version when you're working with grids, adjacency lists, or networks. The structure can contain cycles or duplicate paths. You need to find the shortest number of steps or minimum moves. You're exploring possible states in puzzles, games, or logic problems.
 
+```python
+def bfs_graph_shortest_path(graph: Dict[int, List[int]], start: int, target: int) -> int:
+    queue = deque([(start, 0)])
+    visited = set([start])
+    while queue:
+        node, distance = queue.popleft()
+        if node == target:
+            return distance
+        for neighbor in graph[node]:
+            if neighbor not in visited:
+                visited.add(neighbor)
+                queue.append((neighbor, distance + 1))
+    return -1
+```
+
 (51:40) BFS on graphs is especially useful when all edges or moves have the same cost because it will always find the shortest path first. Both versions for trees and graphs follow the same fundamental structure. a queue for the current layer of exploration, a loop to process each node, and a branching step where neighbors or children are added to the queue.
 
 (51:58) You'll see this structure everywhere from tree traversals to maze solving to social networks to shortest path problems. Once you know the pattern, you can recognize it immediately and fill in the details. And on that note, let's take a look at applying these patterns to some real life interview problems.
 
 (52:16) All right, let's walk through a classic BFS problem. Binary tree level order traversal. The idea is simple. We're given the root of a binary tree and we want to return a list of values level by level. So the root level comes first, then the next layer of nodes, then the next, and so on, always from left to right. This is a perfect use case for BFS because BFS is all about exploring one layer at a time.
+
+```python
+def bfs_tree_level_order(root: TreeNode) -> List[int]:
+    if not root:
+        return []
+    queue = deque([root])
+    result = []
+    while queue:
+        node = queue.popleft()
+        result.append(node.val)
+        if node.left:
+            queue.append(node.left)
+        if node.right:
+            queue.append(node.right)
+    return result
+```
 
 (52:41) Let's jump into the code. We start off by importing DK from Python's collections module. This gives us a superefficient queue that we'll use for our levelby level traversal. Now into the main logic, the level order traversal function. We first create an empty list called res, short for result, which will store all the levels of the tree as we go. Next, we initialize our queue with the root node already inside.
 
@@ -392,6 +469,33 @@ def binary_search(arr: List[int], target: int) -> int:
 (54:36) For each node, we add its children to the queue, and we repeat until there's nothing left. This structure gives us a clean left to right level order traversal of the tree. Exactly what the problem is asking for. Let's walk through another real life interview problem, the flood fill problem, which is basically like simulating the paint bucket tool in MS Paint.
 
 (55:01) You're given an image as a 2D grid where each number represents a color. Starting from a given pixel at row R, column C, you want to change the color of that pixel and every connected pixel with the same color to a new one. The key here is connected pixels, meaning all the ones that are directly touching up, down, left, or right, and have the same original color, not diagonally, just the four cardinal directions.
+
+```python
+def color_fill(image: List[List[int]], r: int, c: int, new_color: int) -> List[List[int]]:
+    rows, cols = len(image), len(image[0])
+    original_color = image[r][c]
+    if original_color == new_color:
+        return image
+    def get_neighbors(r: int, c: int) -> List[Tuple[int, int]]:
+        neighbors = []
+        for dr, dc in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
+            new_r, new_c = r + dr, c + dc
+            if 0 <= new_r < rows and 0 <= new_c < cols and image[new_r][new_c] == original_color:
+                neighbors.append((new_r, new_c))
+        return neighbors
+    def bfs(r: int, c: int):
+        queue = deque([(r, c)])
+        visited = set([(r, c)])
+        while queue:
+            r, c = queue.popleft()
+            image[r][c] = new_color
+            for new_r, new_c in get_neighbors(r, c):
+                if (new_r, new_c) not in visited:
+                    visited.add((new_r, new_c))
+                    queue.append((new_r, new_c))
+    bfs(r, c)
+    return image
+```
 
 (55:27) This is a perfect place to use BFS on a grid since we want to explore all the connected regions evenly without going too deep too fast. Let's work through the code. We're starting off by grabbing the number of rows and columns from the image. Just some prep to help with boundary checks later. Then we define a helper function called get neighbors.
 
@@ -411,6 +515,15 @@ def binary_search(arr: List[int], target: int) -> int:
 
 (58:19) Let's look at how it plays out. Starting with trees, trees are a cyclic by definition. They branch downward and you can't loop back. That makes them a perfect fit for DFS. Here's the clean recursive DFS template for a tree. How it works? We first check if the current node is none. If it is, there's nothing to search. Return.
 
+```python
+def dfs_tree_target_exists(root: TreeNode, target: int) -> bool:
+    if not root:
+        return False
+    if root.val == target:
+        return True
+    return dfs_tree_target_exists(root.left, target) or dfs_tree_target_exists(root.right, target)
+```
+
 (58:35) Then we check if the current node matches the target. If not, we go left and search down that entire subree. If we find something there, we return it. If not, we backtrack and go right. This is classic DFS. Go deep into the left sub tree first, then back up and try the right. The recursive call stack handles everything.
 
 (58:54) It keeps track of where we are and automatically returns us to the previous node after exploring each path. And because trees don't have cycles, we don't need a visited set. DFS is what you'll use in many recursive tree problems such as flattening trees, building or checking structures, searching for nodes based on custom logic. The structure is simple and surprisingly powerful. When we move to graphs, the challenge changes.
@@ -425,6 +538,19 @@ def binary_search(arr: List[int], target: int) -> int:
 
 (1:00:23) So, let's start now and practice a few problems. All right, let's walk through a classic recursive DFS problem. Maximum depth of binary tree. So the idea here is simple. Given the root of a binary tree, we want to find the maximum depth. In other words, how far down does this tree go? What's the longest path from the root to a leaf? We're going to use DFS to solve this because, well, it's perfect for problems where we want to go all the way down each path.
 
+```python
+class TreeNode:
+    def __init__(self, val=0, left=None, right=None):
+        self.val = val
+        self.left = left
+        self.right = right
+
+def dfs_tree_max_depth(root: TreeNode) -> int:
+    if not root:
+        return 0
+    return 1 + max(dfs_tree_max_depth(root.left), dfs_tree_max_depth(root.right))
+```
+
 (1:00:53) Now, the helper function here is called DFS, and it follows that clean recursive template we looked at earlier. First up, we check if the current node is none. If it is, that means we've hit the end of a path, so we just return zero. There's no more depth to add here.
 
 (1:01:12) Otherwise, we're at a real node, so we want to explore both its left and right sub trees. We do that by recursively calling DFS on both sides. We're asking, hey, what's the max depth of the left side? And what's the max depth of the right side? Once we have those two numbers, we take the bigger one because we care about the longest path and then we add one for the current node we're on.
@@ -434,6 +560,35 @@ def binary_search(arr: List[int], target: int) -> int:
 (1:02:06) If the root is none, we just return zero directly. And that's it. Clean recursive DFS to find the depth of a tree. No visited set, no loops, no fancy tricks, just classic recursion going all the way down and bubbling the answers back up. All right, let's tackle the number of islands problem. So, here's the setup. You're given a two-dimensional grid of ones and zeros.
 
 (1:02:31) Think of ones as land and zeros as water. Your job is to count how many separate islands there are. And an island is just a group of land tiles connected vertically or horizontally, not diagonally. This problem can be solved in a few different ways, but we're using DFS here. We're exploring connected land, and we want to mark it all once we visited it. Let's break down how the solution works.
+
+```python
+class TreeNode:
+    def __init__(self, val=0, left=None, right=None):
+        self.val = val
+        self.left = left
+        self.right = right
+
+def dfs_grid_number_of_islands(grid: List[List[int]]) -> int:
+    if not grid:
+        return 0
+    rows, cols = len(grid), len(grid[0])
+    visited = set()
+    def dfs(r: int, c: int):
+        if (r, c) in visited or r < 0 or r >= rows or c < 0 or c >= cols or grid[r][c] == 0:
+            return
+        visited.add((r, c))
+        dfs(r + 1, c)
+        dfs(r - 1, c)
+        dfs(r, c + 1)
+        dfs(r, c - 1)
+    count = 0
+    for r in range(rows):
+        for c in range(cols):
+            if grid[r][c] == 1 and (r, c) not in visited:
+                dfs(r, c)
+                count += 1
+    return count
+```
 
 (1:02:56) We start by getting the number of rows and columns in the grid. Nothing fancy here, just setting up some variables so we know our bounds. Next up is a helper function called get neighbors. This gives us all the valid adjacent tiles up, right, down, and left for a given cell. We use two arrays, delta row and delta column to represent the movement in each direction.
 
@@ -452,6 +607,27 @@ def binary_search(arr: List[int], target: int) -> int:
 (1:05:33) You're building up a partial solution one step at a time. You want all possible solutions or the first valid one and you need a way to discard bad paths early instead of exploring them fully. It's commonly used in sudoku solvers, word searches, subset and permutation problems, constraintbased problems like end queens.
 
 (1:05:51) Now let's look at the core pattern. We'll be storing our final results in this list. It could be valid permutations, combinations, solutions to a puzzle, etc. The core of backtracking is a recursive DFS function. Start index keeps track of where we are in the input. path is the current in progress solution.
+
+```python
+def dfs_word_search(board: List[List[str]], word: str) -> bool:
+    rows, cols = len(board), len(board[0])
+    path = []
+    def dfs(r: int, c: int, index: int):
+        if index == len(word):
+            return True
+        if r < 0 or c < 0 or r >= rows or c >= cols or board[r][c] != word[index]:
+            return False
+        temp = board[r][c]
+        board[r][c] = "*"
+        res = dfs(r + 1, c, index + 1) or dfs(r - 1, c, index + 1) or dfs(r, c + 1, index + 1) or dfs(r, c - 1, index + 1)
+        board[r][c] = temp
+        return res
+    for r in range(rows):
+        for c in range(cols):
+            if dfs(r, c, 0):
+                return True
+    return False
+```
 
 (1:06:09) The additional states are optional things like counters, visited arrays, frequency maps, etc. that track constraints or states outside of the path. This is the base case. A leaf means we've reached a complete solution. Notice that we store a copy of path, not the path itself because the path will keep changing as we backtrack. If we didn't copy it, we'd overwrite all of our answers.
 
@@ -487,6 +663,15 @@ def binary_search(arr: List[int], target: int) -> int:
 
 (1:11:28) Priority cues are one of the easiest implementations, often utilizing simple libraries. So, the best way to learn these is to get right into it now with some practice problems. All right, let's put that heap knowledge to work with this classic problem. Finding the k closest points to the origin.
 
+```python
+def k_closest_points_to_origin(points: List[List[int]], k: int) -> List[List[int]]:
+    heap = []
+    for x, y in points:
+        dist = x**2 + y**2
+        heapq.heappush(heap, (dist, x, y))
+    return [[x, y] for _, x, y in heapq.nsmallest(k, heap)]
+```
+
 (1:11:47) We're given a bunch of points on a 2D plane and we want to return the k points that are closest to 0 0 using regular uklidian distance. Now, remember, since we only care about which points are closest, not the actual distances, we can just compare the squared distances. That saves us from doing a square root for every point. Let's walk through the code. First, we import heap hop and heap push from Python's heapq module.
 
 (1:12:12) This gives us a nice way to use a min heap where the smallest elements come out first. Next, we create an empty heap. We'll use this to keep track of all the points sorted by their distance to the origin. Now, we loop through each point in the input list. For every point, we calculate its squared distance from the origin. That's just x^2 + y^2.
@@ -494,6 +679,7 @@ def binary_search(arr: List[int], target: int) -> int:
 (1:12:36) Then we push a tuple into the heap. The distance first and the point itself second. Why do we put the distance first? Because heaps in Python use the first item in the tupole to figure out the priority. So this makes sure the point with the smallest distance will bubble up to the top. All right. Once we've pushed all the points into the heap, we're ready to grab the top k.
 
 (1:13:02) We create a result list and for k times, we pop the smallest element off the heap. That gives us the point with the next closest distance each time. We don't care about the distance anymore, so we just extract the point and add it to our result list. And finally, return the result. So overall, we're using a priority Q to help us efficiently pull out the k closest points without having to sort the entire list. The heat makes this fast.
+
 (1:13:26) Each insertion and removal is logarithmic, and the code stays simple and readable. All right, let's dive into a classic selection problem using heaps. Finding the key largest element in an array. So, what are we trying to do here? We're given an unsorted list of numbers, and we need to find the keith largest.
 
 (1:13:47) Not just the Keith item, but the one that would sit in the Keith spot from the end if we sorted it. Now, since we just learned about heaps and especially how fast they are at pulling out the largest or smallest values, this is a great chance to use them in action. Here's what we're doing.
