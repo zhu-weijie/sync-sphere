@@ -35,6 +35,19 @@ for char in chars:
 result = "".join(result)
 ```
 
+```python
+def valid_parentheses(s: str) -> bool:
+    stack = []
+    for char in s:
+        if char in "([{":
+            stack.append(char)
+        elif char in ")]}":
+            if not stack or stack[-1] != char:
+                return False
+            stack.pop()
+    return not stack
+```
+
 (04:24) You'll see tons of questions like, find the longest substring without repeating characters. Check if two strings are anagrams, or return all the substrings that match a pattern. Here's the thing. Most of these are actually hidden as sliding window problems, a pattern we're going to get to later in the video or another pattern called two-pointer.
 
 (04:48) We'll actually cover both of these patterns in detail, but the key insight for now is string problems are almost never about brute force character checking. They're about smart windowing, fast lookups, and efficient traversal. Sets are one of the simplest data structures and one of the most useful for time efficiency. A set is just a collection of unique values. No duplicates, no particular order, just a group of things where each one only appears once.
@@ -79,6 +92,41 @@ continue
 
 (08:51) This is probably the most common time complexity and is often associated with loops and traversing through lists. Next, we have O of N login. This is almost always related to sorting and that includes the default sort methods built into each programming language. The last one of importance is O of N squ. This is almost always associated with nested loops. So a for loop within a for loop.
 
+```python
+def quick_sort(arr: List[int]) -> List[int]:
+    if len(arr) <= 1:
+        return arr
+    pivot = arr[len(arr) // 2]
+    left = [x for x in arr if x < pivot]
+    middle = [x for x in arr if x == pivot]
+    right = [x for x in arr if x > pivot]
+    return quick_sort(left) + middle + quick_sort(right)
+```
+
+```python
+def merge_sort(arr: List[int]) -> List[int]:
+    if len(arr) <= 1:
+        return arr
+    mid = len(arr) // 2
+    left = merge_sort(arr[:mid])
+    right = merge_sort(arr[mid:])
+    return merge(left, right)
+
+def merge(left: List[int], right: List[int]) -> List[int]:
+    result = []
+    i = j = 0
+    while i < len(left) and j < len(right):
+        if left[i] < right[j]:
+            result.append(left[i])
+            i += 1
+        else:
+            result.append(right[j])
+            j += 1
+    result.extend(left[i:])
+    result.extend(right[j:])
+    return result
+```
+
 (09:17) Often this is when you're doing brute force comparisons. And just as a hint, this is usually too slow for large inputs and will not be accepted as a viable solution for interview problems. Now here's the basic rule of thumb. For inputs up to 10 the^ of 5, you probably need O of N log N or better. For inputs up to 10 ^ 4, you can maybe get away with O of N^2.
 
 (09:45) And anything higher than that, you absolutely need to optimize. That about covers the introductory concept you need to know before moving on and learning these patterns. Now, if you feel comfortable, let's get started with learning the patterns and getting ready to ace these interviews.
@@ -97,7 +145,7 @@ continue
 
 (12:35) So if you try to use a list or another hashmap/dictionary as a key, it'll throw an error because their contents can change. And hashmaps need keys that stay the same. This comes up more often than you'd think. For example, if you're grouping elements by their structure, like sorting strings and using them as keys, you'll need to convert them into a format that's hashable first.
 
-(13:01) So, why are hashmaps so common in interviews? Because they're your go-to structure when brute force is too slow. Let's say you need to find a value that already exists. Without a hashmap, you're looping through everything you've seen so far, and that's O of N. But with a hashmap, you just need to check once O of one.
+(13:01) So, why are hashmaps so common in interviews? Because they're your go-to structure when brute force is too slow. Let's say you need to find a value that already exists. Without a hashmap, you're looping through everything you've seen so far, and that's O of N. But with a hashmap, you just need to check once, O of one.
 
 (13:25) In a lot of interview problems, the real trick isn't some clever algorithm. It's just storing information in a smarter way. And a hashmap gives you that for free. Here's the mindset shift you need to make. When you solve problems with brute force, you're asking the same questions over and over. When you solve problems with a hashmap, you're remembering the answers as you go.
 
@@ -105,7 +153,7 @@ continue
 
 (14:14) And optionally, you might update or initialize more values as you go. Here's a basic sketch of the code structure you'll use again and again. This structure is often referred to as a frequency map, and it's one of the most common patterns you'll see. As you can see, we're basically going through all of the items in some data list. And if an item doesn't already exist in our map, we're setting its count to one.
 
-(14:41) And if it does exist, we're updating its count by plus one. There are language specific helpers that help clean up this code, such as default dicty or map.get ordefault in Java, but the underlying logic is always the same. You're storing something under a key and either retrieving it or updating it later.
+(14:41) And if it does exist, we're updating its count by plus one. There are language specific helpers that help clean up this code, such as defaultdict or map.get ordefault in Java, but the underlying logic is always the same. You're storing something under a key and either retrieving it or updating it later.
 
 (15:06) Also, hashmaps are often used while you loop, not just after. So you're building and using the map in real time, which is what lets you write a onepass solution instead of having to loop twice. We'll come back to this idea when we look at real problems in a moment or two. For now, just keep this shape in your head. Initialize a map, use it while looping, and it gives you fast lookup and storage.
 
@@ -142,9 +190,47 @@ def two_sum(nums: List[int], target: int) -> List[int]:
 
 (19:47) Both pointers move in the same direction and pointers move towards each other from opposite ends. Let's break each one down. The same direction pattern usually shows up when you're doing a single pass over the data, but you need to track a range, not just one element at a time. A classic example is the fast and slow two-pointer setup.
 
+```python
+class ListNode:
+    def __init__(self, val=0, next=None):
+        self.val = val
+        self.next = next
+
+def find_middle(head: ListNode) -> ListNode:
+    slow = fast = head
+    while fast and fast.next:
+        slow = slow.next
+        fast = fast.next.next
+    return slow
+```
+
+```python
+def has_cycle(head: ListNode) -> bool:
+    slow = fast = head
+    while fast and fast.next:
+        slow = slow.next
+        fast = fast.next.next
+        if slow == fast:
+            return True
+    return False
+```
+
 (20:12) You'll often see one pointer moving one step at a time, which is the slow pointer, and another one moving faster, two steps at a time. Now, why would you ever do that? Well, it lets you detect patterns in a single pass. For example, if the fast pointer reaches the end while one is halfway, you found the middle. or if the fast pointer ever laps the slow pointer, you've detected a cycle.
 
 (20:39) The ability to find the middle of something or detect cycles are not only incredibly useful for a variety of reasons, but as you can see, extremely simple. Now, the opposite direction pattern is the more classic two-pointers implementation where one pointer starts at the beginning and the other starts at the end and they move inward.
+
+```python
+def most_water(height: List[int]) -> int:
+    left, right = 0, len(height) - 1
+    max_area = 0
+    while left < right:
+        max_area = max(max_area, min(height[left], height[right]) * (right - left))
+        if height[left] < height[right]:
+            left += 1
+        else:
+            right -= 1
+    return max_area
+```
 
 (21:00) You'll see this pattern used when the array is sorted and you're trying to find a pair or combination. You're comparing symmetric parts of a structure like checking for palendromes or you want to avoid nested loops when looking at all pairs. Now, here's the mental model for this. Your left pointer starts at zero.
 
@@ -183,8 +269,6 @@ def is_palindrome(s: str) -> bool:
 
 (25:00) No extra space, no reversing strings, just two pointers doing a clean pass through the input. And that's why the two-pointer pattern is so powerful for problems like this. Let's move on to the next one. All right, now let's look at another super common interview problem. It uses the same direction two pointers technique. Finding the middle of a linked list.
 
-(25:19) The problem is simple on the surface. Given a linked list, return the middle node. And if the list has an even number of nodes, you return the second middle one. So for something like 0 points to 1, 1 to 2, 2 to 3, and 3 to 4, the middle is clearly two. But how do we find that efficiently in just one pass? Let's walk through the code and break it down.
-
 ```python
 class ListNode:
     def __init__(self, val=0, next=None):
@@ -198,6 +282,8 @@ def find_middle(head: ListNode) -> ListNode:
         fast = fast.next.next
     return slow
 ```
+
+(25:19) The problem is simple on the surface. Given a linked list, return the middle node. And if the list has an even number of nodes, you return the second middle one. So for something like 0 points to 1, 1 to 2, 2 to 3, and 3 to 4, the middle is clearly two. But how do we find that efficiently in just one pass? Let's walk through the code and break it down.
 
 (25:47) We start by creating two pointers, slow and fast, and we set both of them to the head of the list. Now, here comes the magic. We enter a loop. And while fast and fast next are still valid, we do two things. We move fast two steps forward, and we move slow just one step forward. So, fast races ahead while slow walks at a steady pace.
 
@@ -216,15 +302,34 @@ def find_middle(head: ListNode) -> ListNode:
 (28:23) The first is fixed size, where the size of the window is predetermined and stays the same throughout. And the second is dynamic, where the window can shrink and expand as necessary. Now, let's break each one down. A fixedsized sliding window is used when the problem gives you a specific window size, usually with language like find the maximum average of any subarray of size k, return the sum of every klength block, or find the subarray of length k with the largest or smallest x.
 
 ```python
-def max_subarray_of_size_k(nums: List[int], k: int) -> int:
-    window_sum = 0
-    max_sum = 0
-    for i in range(len(nums)):
-        window_sum += nums[i]
-        if i >= k - 1:
-            max_sum = max(max_sum, window_sum)
-            window_sum -= nums[i - k + 1]
-    return max_sum
+def max_average_subarray_of_size_k(nums: List[int], k: int) -> float:
+    window_sum = sum(nums[:k])
+    max_sum = window_sum
+    for i in range(k, len(nums)):
+        window_sum += nums[i] - nums[i - k]
+        max_sum = max(max_sum, window_sum)
+    return max_sum / k
+```
+
+```python
+def sum_of_every_k_length_subarray(nums: List[int], k: int) -> List[int]:
+    result = []
+    window_sum = sum(nums[:k])
+    result.append(window_sum)
+    for i in range(k, len(nums)):
+        window_sum += nums[i] - nums[i - k]
+        result.append(window_sum)
+    return result
+```
+
+```python
+def subarray_with_smallest_sum_of_size_k(nums: List[int], k: int) -> int:
+    window_sum = sum(nums[:k])
+    min_sum = window_sum
+    for i in range(k, len(nums)):
+        window_sum += nums[i] - nums[i - k]
+        min_sum = min(min_sum, window_sum)
+    return min_sum
 ```
 
 (28:56) In these problems, the windows length never changes. It always includes exactly k elements. And as you slide the window over the data, you add one new element from the right and remove one old element from the left, keeping the window size constant. The key is that you're maintaining a running window.
@@ -244,6 +349,16 @@ def max_subarray_of_size_k(nums: List[int], k: int) -> int:
 (31:34) If the window is invalid, you start removing elements from the left. and shrinking the window until it becomes valid again. Now let's see these two templates in action. Let's put the fixed size sliding window pattern into action with this problem. Maximum subarray of length k. We're given an array of non-gative numbers and a number k.
 
 (32:00) And we need to find the largest possible sum of any subarray of length k. Since the subarrays must be exactly length k and consecutive, this is a perfect case for a fixed size sliding window. So here's how we solve it. First, we build the initial window by summing up the first k elements of the array. That gives us a starting point to compare against. We store that in a variable called window sum.
+
+```python
+def max_subarray_of_size_k(nums: List[int], k: int) -> int:
+    window_sum = sum(nums[:k])
+    max_sum = window_sum
+    for i in range(k, len(nums)):
+        window_sum += nums[i] - nums[i - k]
+        max_sum = max(max_sum, window_sum)
+    return max_sum
+```
 
 (32:26) Then we copy that into a largest variable since this is our first and currently best subarray sum. Next, we slide the window forward through the rest of the array. We do this by looping from index K all the way to the end of the list. Each step forward means one number falls out of the window on the left and one new number enters on the right. So, first we figure out the index of the element that's now outside the window.
 
@@ -287,9 +402,23 @@ def longest_substring_without_repeating_characters(s: str) -> int:
 
 (37:38) Once you get comfortable tracking conditions like no repeats inside the window, you'll start to see this technique everywhere. Binary search is one of the most efficient algorithms in all of computer science. At its core, it's a way to take a big problem and cut it in half over and over again until you land on the answer. And that's the key idea. Cut the problem in half at every step.
 
-(38:00) Instead of scanning the array from start to finish, which would take O of end time, binary search lets you find the answer in O log N time. But here's the thing. Binary search is so much more powerful than just searching for a number. And most people don't even realize it. So, let's start with the basics and then we'll generalize it to see how truly powerful it is.
+(38:00) Instead of scanning the array from start to finish, which would take O of n time, binary search lets you find the answer in O log N time. But here's the thing. Binary search is so much more powerful than just searching for a number. And most people don't even realize it. So, let's start with the basics and then we'll generalize it to see how truly powerful it is.
 
 (38:26) But first, the intuition. Imagine you're playing a number guessing game. I pick a number between 1 and 80, and you have to guess it in the least amount of moves. Each time you guess, I tell you if it's too high or too low. What should your first guess be? Well, you would probably guess 40 because it's right in the middle and you can automatically eliminate half the answers.
+
+```python
+def guess(arr: List[int], target: int) -> int:
+    left, right = 0, len(arr) - 1
+    while left <= right:
+        mid = (left + right) // 2
+        if arr[mid] == target:
+            return mid
+        elif arr[mid] < target:
+            left = mid + 1
+        else:
+            right = mid - 1
+    return -1
+```
 
 (38:51) Now, based on this answer, you would then make another guess and cut the range in half again and again and so on until you find your answer. That's essentially what binary search is. Each guess lets you eliminate half the remaining options. And that's what gives you logarithmic time.
 
@@ -327,6 +456,18 @@ def binary_search(arr: List[int], target: int) -> int:
 
 (42:43) Binary search can help us find that first true the boundary in logarithmic time as long as we can write a feasible function that answers is this index valid. This comes up a lot in problems such as ones where you're not given a sorted array but you're trying to minimize or maximize something and you can check whether a solution is valid for a given guess.
 
+```python
+def first_true(arr: List[bool]) -> int:
+    left, right = 0, len(arr) - 1
+    while left <= right:
+        mid = (left + right) // 2
+        if arr[mid]:
+            right = mid - 1
+        else:
+            left = mid + 1
+    return left
+```
+
 (43:09) Sort of make sense? Let's take a look at the template line by line, and I'm sure it will make more sense. We're still using two pointers to define our search space. Nothing new yet. We keep track of the best candidate we've seen so far. If we find a position that returns true, we store it here, but keep searching left to see if there's an even earlier one. Classic binary search loop.
 
 (43:34) We keep going until we've narrowed down the search space. Grab the midpoint as usual. Here's where things get different. We're not comparing values directly. Instead, we check if this index satisfies some condition. Think of this as asking, is this index good enough? If it is good enough, we store it as a possible answer and then move left in case there's an earlier index that also works.
@@ -358,13 +499,15 @@ def first_true(arr: List[bool]) -> int:
 ```python
 def find_min_in_rotated_sorted_array(arr: List[int]) -> int:
     left, right = 0, len(arr) - 1
-    while left < right:
+    best = -1
+    while left <= right:
         mid = (left + right) // 2
-        if arr[mid] > arr[right]:
-            left = mid + 1
+        if arr[mid] <= arr[-1]:
+            best = mid
+            right = mid - 1
         else:
-            right = mid
-    return arr[left]
+            left = mid + 1
+    return best
 ```
 
 (46:14) So something like 10 20 30 40 50 might become 30 40 50 10 20. Our goal is to find the index of the smallest number in that array. At first, it might seem like binary search won't help here. The array isn't fully sorted anymore. But if you look closely, there's still structure we can use. Before the rotation point, the numbers are increasing. Then suddenly they drop.
@@ -441,18 +584,27 @@ def bfs_graph_shortest_path(graph: Dict[int, List[int]], start: int, target: int
 (52:16) All right, let's walk through a classic BFS problem. Binary tree level order traversal. The idea is simple. We're given the root of a binary tree and we want to return a list of values level by level. So the root level comes first, then the next layer of nodes, then the next, and so on, always from left to right. This is a perfect use case for BFS because BFS is all about exploring one layer at a time.
 
 ```python
+class TreeNode:
+    def __init__(self, val=0, left=None, right=None):
+        self.val = val
+        self.left = left
+        self.right = right
+
 def bfs_tree_level_order(root: TreeNode) -> List[int]:
     if not root:
         return []
     queue = deque([root])
     result = []
-    while queue:
-        node = queue.popleft()
-        result.append(node.val)
-        if node.left:
-            queue.append(node.left)
-        if node.right:
-            queue.append(node.right)
+    while len(queue) > 0:
+        n = len(queue)
+        new_level = []
+        for _ in range(n):
+            node = queue.popleft()
+            new_level.append(node.val)
+            for child in [node.left, node.right]:
+                if child:
+                    queue.append(child)
+        result.append(new_level)
     return result
 ```
 
@@ -468,34 +620,41 @@ def bfs_tree_level_order(root: TreeNode) -> List[int]:
 
 (54:36) For each node, we add its children to the queue, and we repeat until there's nothing left. This structure gives us a clean left to right level order traversal of the tree. Exactly what the problem is asking for. Let's walk through another real life interview problem, the flood fill problem, which is basically like simulating the paint bucket tool in MS Paint.
 
-(55:01) You're given an image as a 2D grid where each number represents a color. Starting from a given pixel at row R, column C, you want to change the color of that pixel and every connected pixel with the same color to a new one. The key here is connected pixels, meaning all the ones that are directly touching up, down, left, or right, and have the same original color, not diagonally, just the four cardinal directions.
-
 ```python
-def color_fill(image: List[List[int]], r: int, c: int, new_color: int) -> List[List[int]]:
-    rows, cols = len(image), len(image[0])
-    original_color = image[r][c]
-    if original_color == new_color:
-        return image
-    def get_neighbors(r: int, c: int) -> List[Tuple[int, int]]:
-        neighbors = []
-        for dr, dc in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
-            new_r, new_c = r + dr, c + dc
-            if 0 <= new_r < rows and 0 <= new_c < cols and image[new_r][new_c] == original_color:
-                neighbors.append((new_r, new_c))
-        return neighbors
-    def bfs(r: int, c: int):
-        queue = deque([(r, c)])
-        visited = set([(r, c)])
-        while queue:
-            r, c = queue.popleft()
-            image[r][c] = new_color
-            for new_r, new_c in get_neighbors(r, c):
-                if (new_r, new_c) not in visited:
-                    visited.add((new_r, new_c))
-                    queue.append((new_r, new_c))
-    bfs(r, c)
+def flood_fill(image: List[List[int]], sr: int, sc: int, color: int) -> List[List[int]]:
+    num_rows, num_cols = len(image), len(image[0])
+    original_color = image[sr][sc]
+    replacement_color = color
+    def get_neighbors(coord: Tuple[int, int], color: int) -> List[Tuple[int, int]]:
+        row, col = coord
+        delta_row = [-1, 0, 1, 0]
+        delta_col = [0, 1, 0, -1]
+        for i in range(4):
+            neighbor_row = row + delta_row[i]
+            neighbor_col = col + delta_col[i]
+            if 0 <= neighbor_row < num_rows and 0 <= neighbor_col < num_cols and image[neighbor_row][neighbor_col] == original_color:
+                yield (neighbor_row, neighbor_col)
+    def bfs(root: Tuple[int, int]):
+        queue = deque([root])
+        visited = [[False for _ in range(num_cols)] for _ in range(num_rows)]
+        r, c = root
+        color = image[r][c]
+        image[r][c] = replacement_color
+        visited[r][c] = True
+        while len(queue) > 0:
+            node = queue.popleft()
+            for neighbor in get_neighbors(node, color):
+                r, c = neighbor
+                if visited[r][c]:
+                    continue
+                image[r][c] = replacement_color
+                queue.append(neighbor)
+                visited[r][c] = True
+    bfs((sr, sc))
     return image
 ```
+
+(55:01) You're given an image as a 2D grid where each number represents a color. Starting from a given pixel at row R, column C, you want to change the color of that pixel and every connected pixel with the same color to a new one. The key here is connected pixels, meaning all the ones that are directly touching up, down, left, or right, and have the same original color, not diagonally, just the four cardinal directions.
 
 (55:27) This is a perfect place to use BFS on a grid since we want to explore all the connected regions evenly without going too deep too fast. Let's work through the code. We're starting off by grabbing the number of rows and columns from the image. Just some prep to help with boundary checks later. Then we define a helper function called get neighbors.
 
@@ -545,10 +704,12 @@ class TreeNode:
         self.left = left
         self.right = right
 
-def dfs_tree_max_depth(root: TreeNode) -> int:
-    if not root:
-        return 0
-    return 1 + max(dfs_tree_max_depth(root.left), dfs_tree_max_depth(root.right))
+def tree_max_depth(root: TreeNode) -> int:
+    def dfs(node: TreeNode) -> int:
+        if not node:
+            return 0
+        return 1 + max(dfs(node.left), dfs(node.right))
+    return dfs(root) - 1 if root else 0
 ```
 
 (1:00:53) Now, the helper function here is called DFS, and it follows that clean recursive template we looked at earlier. First up, we check if the current node is none. If it is, that means we've hit the end of a path, so we just return zero. There's no more depth to add here.
@@ -559,8 +720,6 @@ def dfs_tree_max_depth(root: TreeNode) -> int:
 
 (1:02:06) If the root is none, we just return zero directly. And that's it. Clean recursive DFS to find the depth of a tree. No visited set, no loops, no fancy tricks, just classic recursion going all the way down and bubbling the answers back up. All right, let's tackle the number of islands problem. So, here's the setup. You're given a two-dimensional grid of ones and zeros.
 
-(1:02:31) Think of ones as land and zeros as water. Your job is to count how many separate islands there are. And an island is just a group of land tiles connected vertically or horizontally, not diagonally. This problem can be solved in a few different ways, but we're using DFS here. We're exploring connected land, and we want to mark it all once we visited it. Let's break down how the solution works.
-
 ```python
 class TreeNode:
     def __init__(self, val=0, left=None, right=None):
@@ -568,27 +727,38 @@ class TreeNode:
         self.left = left
         self.right = right
 
-def dfs_grid_number_of_islands(grid: List[List[int]]) -> int:
-    if not grid:
-        return 0
-    rows, cols = len(grid), len(grid[0])
-    visited = set()
-    def dfs(r: int, c: int):
-        if (r, c) in visited or r < 0 or r >= rows or c < 0 or c >= cols or grid[r][c] == 0:
+def count_number_of_islands(grid: List[List[int]]) -> int:
+    num_rows, num_cols = len(grid), len(grid[0])
+    def get_neighbors(coord: Tuple[int, int]) -> List[Tuple[int, int]]:
+        res = []
+        row, col = coord
+        delta_row = [-1, 0, 1, 0]
+        delta_col = [0, 1, 0, -1]
+        for i in range(4):
+            neighbor_row = row + delta_row[i]
+            neighbor_col = col + delta_col[i]
+            if 0 <= neighbor_row < num_rows and 0 <= neighbor_col < num_cols:
+                res.append((neighbor_row, neighbor_col))
+        return res
+    def dfs(coord: Tuple[int, int]):
+        r, c = coord
+        if grid[r][c] == 0:
             return
-        visited.add((r, c))
-        dfs(r + 1, c)
-        dfs(r - 1, c)
-        dfs(r, c + 1)
-        dfs(r, c - 1)
+        grid[r][c] = 0
+        for neighbor in get_neighbors(coord):
+            nr, nc = neighbor
+            if grid[nr][nc] == 1:
+                dfs(neighbor)
     count = 0
-    for r in range(rows):
-        for c in range(cols):
-            if grid[r][c] == 1 and (r, c) not in visited:
-                dfs(r, c)
+    for r in range(num_rows):
+        for c in range(num_cols):
+            if grid[r][c] == 1:
+                dfs((r, c))
                 count += 1
     return count
 ```
+
+(1:02:31) Think of ones as land and zeros as water. Your job is to count how many separate islands there are. And an island is just a group of land tiles connected vertically or horizontally, not diagonally. This problem can be solved in a few different ways, but we're using DFS here. We're exploring connected land, and we want to mark it all once we visited it. Let's break down how the solution works.
 
 (1:02:56) We start by getting the number of rows and columns in the grid. Nothing fancy here, just setting up some variables so we know our bounds. Next up is a helper function called get neighbors. This gives us all the valid adjacent tiles up, right, down, and left for a given cell. We use two arrays, delta row and delta column to represent the movement in each direction.
 
@@ -608,27 +778,6 @@ def dfs_grid_number_of_islands(grid: List[List[int]]) -> int:
 
 (1:05:51) Now let's look at the core pattern. We'll be storing our final results in this list. It could be valid permutations, combinations, solutions to a puzzle, etc. The core of backtracking is a recursive DFS function. Start index keeps track of where we are in the input. path is the current in progress solution.
 
-```python
-def dfs_word_search(board: List[List[str]], word: str) -> bool:
-    rows, cols = len(board), len(board[0])
-    path = []
-    def dfs(r: int, c: int, index: int):
-        if index == len(word):
-            return True
-        if r < 0 or c < 0 or r >= rows or c >= cols or board[r][c] != word[index]:
-            return False
-        temp = board[r][c]
-        board[r][c] = "*"
-        res = dfs(r + 1, c, index + 1) or dfs(r - 1, c, index + 1) or dfs(r, c + 1, index + 1) or dfs(r, c - 1, index + 1)
-        board[r][c] = temp
-        return res
-    for r in range(rows):
-        for c in range(cols):
-            if dfs(r, c, 0):
-                return True
-    return False
-```
-
 (1:06:09) The additional states are optional things like counters, visited arrays, frequency maps, etc. that track constraints or states outside of the path. This is the base case. A leaf means we've reached a complete solution. Notice that we store a copy of path, not the path itself because the path will keep changing as we backtrack. If we didn't copy it, we'd overwrite all of our answers.
 
 (1:06:27) At each step, we try all valid next choices or edges from the current state. In the case of permutations, this could be choosing the next available number. In wordbreak problems, this could be slicing the next substring. In subset generation, it could be whether to include or exclude the next element. This is a critical performance step. Prune early.
@@ -644,6 +793,28 @@ def dfs_word_search(board: List[List[str]], word: str) -> bool:
 (1:08:00) If a problem sounds like try all the ways to do X but only return the valid ones, it's probably a backtracking problem. Once you've written backtracking a few times, you'll see that the structure is always the same. Only the details of pruning, edge generation, and state tracking change. And those details are what you get good at over time. Let's get started now by applying it to a few practice problems.
 
 (1:08:18) All right, let's break down the solution to word search, which is a classic example of backtracking on a 2D grid. The goal here is to find whether a given word can be traced through adjacent letters on the board, moving up, down, left, or right without reusing the same cell. So, we're using backtracking to explore all possible paths through the board that could spell out the word.
+
+```python
+def word_search(board: List[List[str]], word: str) -> bool:
+    def dfs(r: int, c: int, word_index: int) -> bool:
+        if board[r][c] != word[word_index]:
+            return False
+        if word_index == len(word) - 1:
+            return True
+        char = board[r][c]
+        board[r][c] = "*"
+        coord = [(r + 1, c), (r - 1, c), (r, c + 1), (r, c - 1)]
+        for nr, nc in coord:
+            if dfs(nr, nc, word_index + 1):
+                return True
+        board[r][c] = char
+        return False
+    for r in range(len(board)):
+        for c in range(len(board[0])):
+            if dfs(r, c, 0):
+                return True
+    return False
+```
 
 (1:08:39) Inside the DFS function, the first thing we check is, does the current board cell match the letter we're looking for at this position in the word? If it doesn't match, we return false right away. That's pruning. No need to go further if the current path is already invalid. Then we check the base case.
 
@@ -665,11 +836,15 @@ def dfs_word_search(board: List[List[str]], word: str) -> bool:
 
 ```python
 def k_closest_points_to_origin(points: List[List[int]], k: int) -> List[List[int]]:
-    heap = []
-    for x, y in points:
-        dist = x**2 + y**2
-        heapq.heappush(heap, (dist, x, y))
-    return [[x, y] for _, x, y in heapq.nsmallest(k, heap)]
+    heap: list[tuple[int, list[int]]] = []
+    for pt in points:
+        heappush(heap, (pt[0]**2 + pt[1]**2, pt))
+
+    res = []
+    for _ in range(k):
+        _dist, pt = heappop(heap)
+        res.append(pt)
+    return res
 ```
 
 (1:11:47) We're given a bunch of points on a 2D plane and we want to return the k points that are closest to 0 0 using regular uklidian distance. Now, remember, since we only care about which points are closest, not the actual distances, we can just compare the squared distances. That saves us from doing a square root for every point. Let's walk through the code. First, we import heap hop and heap push from Python's heapq module.
@@ -681,6 +856,15 @@ def k_closest_points_to_origin(points: List[List[int]], k: int) -> List[List[int
 (1:13:02) We create a result list and for k times, we pop the smallest element off the heap. That gives us the point with the next closest distance each time. We don't care about the distance anymore, so we just extract the point and add it to our result list. And finally, return the result. So overall, we're using a priority Q to help us efficiently pull out the k closest points without having to sort the entire list. The heat makes this fast.
 
 (1:13:26) Each insertion and removal is logarithmic, and the code stays simple and readable. All right, let's dive into a classic selection problem using heaps. Finding the key largest element in an array. So, what are we trying to do here? We're given an unsorted list of numbers, and we need to find the keith largest.
+
+```python
+def k_largest_element(arr: List[int], k: int) -> int:
+    nums = [-x for x in arr]
+    heapify(nums)
+    for _ in range(k - 1):
+        heappop(nums)
+    return -heappop(nums)
+```
 
 (1:13:47) Not just the Keith item, but the one that would sit in the Keith spot from the end if we sorted it. Now, since we just learned about heaps and especially how fast they are at pulling out the largest or smallest values, this is a great chance to use them in action. Here's what we're doing.
 
